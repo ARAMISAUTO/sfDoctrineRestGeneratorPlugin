@@ -741,7 +741,7 @@ class sfDoctrineRestGenerator extends sfGenerator
 
     if ($column->isForeignKey())
     {
-      $options[] = sprintf('\'model\' => Doctrine_Core::getTable('.$model.')->getRelation(\'%s\')->getAlias()', $column->getRelationKey('alias'));
+      $options[] = sprintf('\'model\' => Doctrine_Core::getTable('.$model.')->getRelation(\'%s\')->getClass()', $column->getRelationKey('alias'));
     }
     else if ($column->isPrimaryKey())
     {
@@ -822,6 +822,124 @@ class sfDoctrineRestGenerator extends sfGenerator
       else
       {
         $sub_validators = $this->getCreateValidatorsArray($relation->getTable(), $level + 1);
+
+        if (null != $sub_validators)
+        {
+          if (Doctrine_Relation::MANY == $relation->getType())
+          {
+            // 1-n, on the other side
+            $validators .= $spaces.'\''.$alias.'\' => array(\''
+              .$relation->getTable()->getComponentName().'\' => '.$sub_validators."),\n";
+          }
+          else
+          {
+            $validators .= $spaces.'\''.$alias.'\' => '.$sub_validators.",\n";
+          }
+        }
+      }
+    }
+
+    return $validators.str_repeat('  ', $level + 2).')';
+  }
+
+  /**
+   * Returns a PHP string representing options to pass to a validator for a given column.
+   *
+   * @param sfDoctrineColumn $column
+   * @return string    The options to pass to the validator as a PHP string
+   */
+  public function getUpdateValidatorOptionsForColumn($column, $model = null)
+  {
+    if (null === $model)
+    {
+      $model = '$this->model';
+    }
+
+    $options = array();
+
+    if ($column->isForeignKey())
+    {
+      $options[] = sprintf('\'model\' => Doctrine_Core::getTable('.$model.')->getRelation(\'%s\')->getClass()', $column->getRelationKey('alias'));
+    }
+    else if ($column->isPrimaryKey())
+    {
+      $options[] = sprintf('\'pattern\' => \'(.+)\', \'must_match\' => false');
+    }
+    else
+    {
+      switch ($column->getDoctrineType())
+      {
+        case 'string':
+          if ($column['length'])
+          {
+            $options[] = sprintf('\'max_length\' => %s', $column['length']);
+          }
+          if (isset($column['minlength']))
+          {
+            $options[] = sprintf('\'min_length\' => %s', $column['minlength']);
+          }
+          if (isset($column['regexp']))
+          {
+            $options[] = sprintf('\'pattern\' => \'%s\'', $column['regexp']);
+          }
+          break;
+        case 'enum':
+          $values = array_combine($column['values'], $column['values']);
+          $options[] = "'choices' => " . str_replace("\n", '', $this->arrayExport($values));
+          break;
+      }
+    }
+
+    // If notnull = false, is a primary or the column has a default value then
+    // make the widget not required
+    if (!$column->isPrimaryKey())
+    {
+      $options[] = '\'required\' => false';
+    }
+
+    return count($options) ? sprintf('array(%s)', implode(', ', $options)) : '';
+  }
+
+
+  /**
+   * Based on a table's model, generates a PHP string representing an indexed
+   * array of validators in a smiliar arrangement like the relationships
+   * hierarchy.
+   */
+  protected function getUpdateValidatorsArray($table, $level = 0)
+  {
+    if ($level > 1)
+    {
+      // do not generate validators for more than two levels
+      return null;
+    }
+
+    if ('sfDoctrineRestGenerator' == get_class($table))
+    {
+      $table = $table->table;
+    }
+
+    $model_name = '\''.$table->getClassnameToReturn().'\'';
+    $spaces = str_repeat('  ', $level + 3);
+    $validators = "array(\n";
+
+    foreach ($this->getColumns($table) as $column)
+    {
+      if (!$column->isPrimaryKey())
+      {
+        $validators .= $spaces.'\''.$column->getFieldName().'\' => new '.$this->getCreateValidatorClassForColumn($column).'('.$this->getUpdateValidatorOptionsForColumn($column, $model_name)."),\n";
+      }
+    }
+
+    foreach ($table->getRelations() as $alias => $relation)
+    {
+      if ($this->isTableManyToManyRelation($table, $alias))
+      {
+        // to do later
+      }
+      else
+      {
+        $sub_validators = $this->getUpdateValidatorsArray($relation->getTable(), $level + 1);
 
         if (null != $sub_validators)
         {

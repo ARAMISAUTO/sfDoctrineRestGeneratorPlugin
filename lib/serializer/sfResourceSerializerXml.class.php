@@ -196,6 +196,10 @@ class sfResourceSerializerXml extends sfResourceSerializer
             $xml .= '<'.$key.'>'.$trimed_value.'</'.$key.'>';
           }
         }
+        else
+        {
+          $xml .= '<'.$key.' />';
+        }
       }
     }
 

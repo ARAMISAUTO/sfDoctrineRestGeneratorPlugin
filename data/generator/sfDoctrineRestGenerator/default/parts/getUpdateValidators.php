@@ -4,5 +4,5 @@
    */
   public function getUpdateValidators()
   {
-    return $this->getCreateValidators();
+    return <?php echo $this->getUpdateValidatorsArray($this); ?>;
   }

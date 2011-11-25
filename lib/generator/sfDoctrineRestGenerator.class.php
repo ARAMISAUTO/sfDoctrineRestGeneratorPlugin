@@ -620,15 +620,11 @@ class sfDoctrineRestGenerator extends sfGenerator
   public function getIndexValidatorClassForColumn($column)
   {
     $filters = $this->configuration->getFilters();
-    $class = $this->getValidatorClassForColumn($column);
+    $class = $this->getValidatorClassForColumn($column, false);
 
     if ($column->isPrimaryKey())
     {
       $class = 'sfValidatorRegex';
-    }
-    elseif ($column->isForeignKey())
-    {
-      $class = 'sfValidatorInteger';
     }
 
     if ('sfValidatorInteger' == $class
@@ -668,7 +664,7 @@ class sfDoctrineRestGenerator extends sfGenerator
    * @param sfDoctrineColumn $column
    * @return string    The name of a subclass of sfValidator
    */
-  public function getValidatorClassForColumn($column)
+  public function getValidatorClassForColumn($column, $overrideFkValidator = true)
   {
     switch ($column->getDoctrineType())
     {
@@ -716,9 +712,9 @@ class sfDoctrineRestGenerator extends sfGenerator
         $validatorSubclass = 'Pass';
     }
 
-    if ($column->isPrimaryKey() || $column->isForeignKey())
+    if ($column->isPrimaryKey() || ($column->isForeignKey() && $overrideFkValidator))
     {
-      $validatorSubclass = 'DoctrineChoice';
+     $validatorSubclass = 'DoctrineChoice';
     }
 
     return sprintf('sfValidator%s', $validatorSubclass);

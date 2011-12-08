@@ -9,16 +9,18 @@ class sfResourceSerializerJson extends sfResourceSerializer
 
   public function serialize($array, $rootNodeName = 'data', $collection = true)
   {
-    $array = $this->camelizeArray($array);
+    $array = $this->_camelizeArray($array);
     return json_encode($array);
   }
 
   public function unserialize($payload)
   {
-    return json_decode($payload, true);
+    $array = json_decode($payload, true);
+    $array = $this->_uncamelizeArray($array);
+    return $array;
   }
 
-  protected function camelizeArray($array)
+  protected function _camelizeArray($array)
   {
     foreach ($array as $key => $value)
     {
@@ -26,7 +28,24 @@ class sfResourceSerializerJson extends sfResourceSerializer
       $key = $this->camelize($key);
 
       if (is_array($value)) {
-        $array[$key] = $this->camelizeArray($value);
+        $array[$key] = $this->_camelizeArray($value);
+      } else {
+        $array[$key] = $value;
+      }
+    }
+
+    return $array;
+  }
+
+  protected function _uncamelizeArray($array)
+  {
+    foreach ($array as $key => $value)
+    {
+      unset($array[$key]);
+      $key = sfInflector::underscore($key);
+
+      if (is_array($value)) {
+        $array[$key] = $this->_uncamelizeArray($value);
       } else {
         $array[$key] = $value;
       }

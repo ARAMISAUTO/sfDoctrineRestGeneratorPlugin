@@ -26,7 +26,7 @@ class sfResourceSerializerJson extends sfResourceSerializer
       $key = $this->camelize($key);
 
       if (is_array($value)) {
-        $array[$key] = camelize($value);
+        $array[$key] = $this->camelizeArray($value);
       } else {
         $array[$key] = $value;
       }

@@ -13,6 +13,7 @@ class <?php echo $this->getGeneratedModuleName() ?>Actions extends <?php echo $t
 
 {
   public $model = '<?php echo $this->getModelClass() ?>';
+  protected $_redirect = true;
 
 <?php include dirname(__FILE__).'/../../parts/cleanupParameters.php' ?>
 
@@ -23,6 +24,8 @@ class <?php echo $this->getGeneratedModuleName() ?>Actions extends <?php echo $t
 <?php include dirname(__FILE__).'/../../parts/createObject.php' ?>
 
 <?php include dirname(__FILE__).'/../../parts/deleteAction.php' ?>
+
+<?php include dirname(__FILE__).'/../../parts/redirectToShow.php' ?>
 
 <?php include dirname(__FILE__).'/../../parts/doSave.php' ?>
 

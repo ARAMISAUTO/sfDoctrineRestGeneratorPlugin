@@ -2,7 +2,7 @@
   {
     $this->object->save();
 
-    if ($this->dispatcher->hasListeners('sfDoctrineRestGenerator.save.post'))
+    if ($this->dispatcher->hasListeners('sfDoctrineRestGenerator.<?php echo $this->getModuleName(); ?>.save.post'))
     {
       $this->object = $this->dispatcher->notify(
         new sfEvent(

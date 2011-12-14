@@ -2,15 +2,12 @@
   {
     $this->object->save();
 
-    if ($this->dispatcher->hasListeners('sfDoctrineRestGenerator.<?php echo $this->getModuleName(); ?>.save.post'))
-    {
-      $this->object = $this->dispatcher->notify(
-        new sfEvent(
-          $this->object,
-          'sfDoctrineRestGenerator.<?php echo $this->getModuleName(); ?>.save.post'
-        )
-      );
-    }
+    $this->dispatcher->notify(
+      new sfEvent(
+        $this->object,
+        'sfDoctrineRestGenerator.<?php echo $this->getModuleName(); ?>.save.post'
+      )
+    );
 
     // Set a Location header with the path to the new / updated object
     $this->getResponse()->setHttpHeader('Location', $this->getController()->genUrl(

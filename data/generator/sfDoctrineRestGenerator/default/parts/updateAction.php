@@ -19,6 +19,16 @@
     try
     {
       $this->validateUpdate($content);
+
+      // retrieve the object
+<?php $primaryKey = Doctrine_Core::getTable($this->getModelClass())->getIdentifier() ?>
+      $primaryKey = $request->getParameter('<?php echo $primaryKey ?>');
+      $this->object = Doctrine_Core::getTable($this->model)->findOneBy<?php echo sfInflector::camelize($primaryKey) ?>($primaryKey);
+      $this->forward404Unless($this->object);
+
+      // update and save it
+      $this->updateObjectFromRequest($content);
+      return $this->doSave();
     }
     catch (Exception $e)
     {
@@ -46,14 +56,4 @@
       $this->setTemplate('index');
       return sfView::SUCCESS;
     }
-
-    // retrieve the object
-<?php $primaryKey = Doctrine_Core::getTable($this->getModelClass())->getIdentifier() ?>
-    $primaryKey = $request->getParameter('<?php echo $primaryKey ?>');
-    $this->object = Doctrine_Core::getTable($this->model)->findOneBy<?php echo sfInflector::camelize($primaryKey) ?>($primaryKey);
-    $this->forward404Unless($this->object);
-
-    // update and save it
-    $this->updateObjectFromRequest($content);
-    return $this->doSave();
   }

@@ -23,6 +23,10 @@
     try
     {
       $this->validateCreate($content);
+
+      $this->object = $this->createObject();
+      $this->updateObjectFromRequest($content);
+      return $this->doSave();
     }
     catch (Exception $e)
     {
@@ -50,8 +54,4 @@
       $this->setTemplate('index');
       return sfView::SUCCESS;
     }
-
-    $this->object = $this->createObject();
-    $this->updateObjectFromRequest($content);
-    return $this->doSave();
   }

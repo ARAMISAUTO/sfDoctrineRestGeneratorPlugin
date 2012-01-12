@@ -24,7 +24,11 @@
         }
         else
         {
-          $validators[$name]->clean($value);
+          try {
+            $validators[$name]->clean($value);
+          } catch(sfValidatorError $e) {
+            throw new Exception('Validation of \'' . $name . '\' field failed : ' . $e->getMessage());
+          }
         }
 
         unset($unused[array_search($name, $unused, true)]);

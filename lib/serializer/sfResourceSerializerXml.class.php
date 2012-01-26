@@ -34,7 +34,7 @@ class sfResourceSerializerXml extends sfResourceSerializer
     $xml = @simplexml_load_string(
       $payload,
       'SimpleXMLElement',
-      LIBXML_NONET
+      LIBXML_NONET | LIBXML_NOCDATA
     );
 
     // If false, there is a parse error.
@@ -123,11 +123,6 @@ class sfResourceSerializerXml extends sfResourceSerializer
           $array2 = (array) $item;
           $first = array_pop($array2);
           $single_xml_string = (count($array) < 1) || (count($array) == 1 && is_string($first) && trim($first) === '');
-
-          if (preg_match('/\<!\[CDATA\[/i', $item->asXML())) {
-              $single_xml_string = false;
-              $unserialized = $item->__toString();
-          }
         }
         else
         {

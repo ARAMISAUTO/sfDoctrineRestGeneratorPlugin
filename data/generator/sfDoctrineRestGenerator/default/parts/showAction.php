@@ -40,7 +40,8 @@
     }
     catch (Exception $e)
     {
-    	$this->getResponse()->setStatusCode(406);
+      $this->getLogger()->log($e->getMessage(), sfLogger::ERR);
+      $this->getResponse()->setStatusCode(406);
       $serializer = $this->getSerializer();
       $this->getResponse()->setContentType($serializer->getContentType());
       $error = $e->getMessage();

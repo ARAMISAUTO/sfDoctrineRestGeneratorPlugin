@@ -26,7 +26,9 @@
 
       $this->object = $this->createObject();
       $this->updateObjectFromRequest($content);
-      return $this->doSave();
+      $this->doSave();
+
+      return sfView::HEADER_ONLY;
     }
     catch (Exception $e)
     {

@@ -16,6 +16,4 @@
         'sf_format' => $this->getFormat(),
       ), $this->object->identifier())
     ));
-
-    return sfView::NONE;
   }

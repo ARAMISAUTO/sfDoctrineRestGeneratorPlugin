@@ -4,6 +4,10 @@
     {
       $format = $this->getRequest()->getParameter('sf_format', '<?php echo $this->configuration->getValue('get.default_format') ?>');
 
+      if (trim($format) == '') {
+          $format = 'xml';
+      }
+
       if (!in_array($format, <?php var_export($this->configuration->getValue('default.formats_enabled', array('json', 'xml', 'yaml'))) ?>))
       {
 <?php if ($this->configuration->getValue('default.formats_strict')): ?>
